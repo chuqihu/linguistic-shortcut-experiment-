@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>My experiment</title>
+    <script src="https://unpkg.com/jspsych@7.3.1"></script>
+   
+    <script src="https://unpkg.com/@jspsych/plugin-video-button-response@1.1.2"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-button-response@1.1.2"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@1.1.2"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-survey-text@1.1.2"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-preload@1.0.0"></script>
+    <script src="jspsych/plugin-initialize-microphone.js"></script>
+
+    <script src="https://unpkg.com/@jspsych/plugin-initialize-microphone@1.0.2"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-html-audio-response@1.0.2"></script>
+
+    <link href="https://unpkg.com/jspsych@7.3.1/css/jspsych.css" rel="stylesheet" type="text/css" />
+   
+
+  </head>
+  <body></body>
+  <script>
+
+    /* initialize jsPsych */
+    var jsPsych = initJsPsych();
+
+    /* create timeline */
+    var timeline = [];
+  
+////////
+
+    /* define instructions trial */
+    var instructions_short_trial = {
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: `
+        <p>During this set of trials, you will be shown 
+          a word on the screen. We ask you to think of a 
+          word that comes to mind when you read the word 
+          on the screen.  </p>
+          <p>Say the word that comes to mind out loud <strong>before</strong> the beep. </p>
+          
+          <p>There will be a clock in 
+          the top right corner of the screen that shows you 
+          how much time is left until the beep. After the beep,
+           we ask you to type the word you thought of in the space 
+           provided.  </p>
+
+           <p>There will be three practice trials for you to get accustomed to the task.
+ </p>
+        
+           <p>Press any key to begin.</p>
+      `
+
+    };
+    
+    timeline.push(instructions_short_trial);
+
+
+ const words = ['abuse', 'agenda', 'annoy', 'attack', 'bean', 'blame', 'bread', 'candidate', 'cheese', 'cloud', 'concentrate', 'cope', 'cupboard', 'delay', 'diet', 'domestic', 'effort', 'establish', 'extension', 'fence', 'fraction', 'gold', 'heaven', 'ideal', 'joint', 'landlord', 'loss', 'mathematics', 'nail', 'nurse', 'owe', 'permit', 'plug', 'prevent', 'pudding', 'reflect', 'repair', 'rock', 'sand', 'session', 'sin', 'source', 'store', 'swear', 'thick', 'tour', 'variety', 'weak', 'abbey', 'alley', 'astonish', 'basket', 'bond', 'bucket', 'canal', 'certificate', 'click', 'concert', 'corridor', 'curious', 'devote', 'dominate', 'echo', 'expose', 'fined', 'foster', 'gentle', 'greed', 'hay', 'hood', 'indulge', 'irony', 'ladder', 'liquid', 'manual', 'miracle', 'multiple', 'nuclear', 'overtake', 'peak', 'poison', 'pride', 'rack', 'rescue', 'routine', 'script', 'shove', 'snap', 'spite', 'stiff', 'suicide', 'symbol', 'terrace', 'torch', 'tumble', 'vandal', 'wander', 'wolf']
+;
+
+/*short trial */
+var short_trial = {
+      type: jsPsychHtmlKeyboardResponse,
+      //recording_duration:	2500,
+      stimulus_duration: 2500,
+      stimulus: jsPsych.randomization.sampleWithReplacement(words, 1),
+      post_trial_gap: 1000
+    };
+
+    timeline.push(short_trial);
+
+    var countdown_trial = {
+  type: 'html-button-response',
+  stimulus: '<p>The next part of the experiment will start in <span id="clock">1:00</span>.',
+  choices: ['Continue'],
+  on_load: function(){
+    var wait_time = 1 * 60 * 1000; // in milliseconds
+    var start_time = performance.now();
+    document.querySelector('button').disabled = true;
+    var interval = setInterval(function(){
+      var time_left = wait_time - (performance.now() - start_time);
+      var minutes = Math.floor(time_left / 1000 / 60);
+      var seconds = Math.floor((time_left - minutes*1000*60)/1000);
+      var seconds_str = seconds.toString().padStart(2,'0');
+      document.querySelector('#clock').innerHTML = minutes + ':' + seconds_str
+      if(time_left <= 0){
+        document.querySelector('#clock').innerHTML = "0:00";
+        document.querySelector('button').disabled = false;
+        clearInterval(interval);
+      }
+    }, 250)
+  }
+}
+
+timeline.push(countdown_trial);
+
+   /* var test = {
+      type: jsPsychHtmlKeyboardResponse,
+      stimulus: 'beep'
+
+    };
+    
+    timeline.push(test);
+*/
+/* write response */
+var write_word = {
+  type: jsPsychSurveyText,
+  questions: [
+    {prompt: 'Write the word you said or type NA if you did not think of anything', rows: 1}
+  ]
+}
+
+timeline.push(write_word);
+
+    /* start the experiment */
+    jsPsych.run(timeline);
+  </script>
+</html>
